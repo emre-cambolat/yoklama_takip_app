@@ -14,16 +14,27 @@ class AboutAppUI extends StatelessWidget {
           padding: const EdgeInsets.all(
             8,
           ),
-          child: Column(
-            children: [
-              Text(
-                "Bu Uygulama 183301070 numaralı Emre Cambolat isimli öğrenci tarafından 2022-2023 eğitim öğretim yılı güz dönemi \'Bilgisayar Mühendisliği Uygulamaları\' dersinin proje ödevi kapsamında Dr. Öğr. Üyesi Onur İNAN'ın danışmanlığında yazılmıştır.\n\nBu uygulama, öğrencilerin ders yoklamalarına QR kod okutarak katılmalarını sağlamak amacını taşımaktadır. Cihaz güvenliği, konum kontrolü, cihaz kontrolü gibi gerekli güvenlik kontrollerini yaparak çalışmaktadır.",
-                textScaleFactor: 1.2,
-              ),
-            ],
-          ),
+          child: _AboutThisApp(),
         ),
       ),
+    );
+  }
+}
+
+class _AboutThisApp extends StatelessWidget {
+  const _AboutThisApp({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          "Bu Uygulama 183301070 numaralı Emre Cambolat isimli öğrenci tarafından 2022-2023 eğitim öğretim yılı güz dönemi \'Bilgisayar Mühendisliği Uygulamaları\' dersinin proje ödevi kapsamında Dr. Öğr. Üyesi Onur İNAN'ın danışmanlığında yazılmıştır.\n\nBu uygulama, öğrencilerin ders yoklamalarına QR kod okutarak katılmalarını sağlamak amacını taşımaktadır. Cihaz güvenliği, konum kontrolü, cihaz kontrolü gibi gerekli güvenlik kontrollerini yaparak çalışmaktadır.",
+          textScaleFactor: 1.2,
+        ),
+      ],
     );
   }
 }

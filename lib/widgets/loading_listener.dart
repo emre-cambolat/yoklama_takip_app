@@ -14,17 +14,6 @@ class LoadingListenerUI extends StatefulWidget {
 }
 
 class _LoadingListenerUIState extends State<LoadingListenerUI> {
-  Widget _loadingIndicator(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height,
-      color: Colors.black.withOpacity(0.3),
-      child: CircularProgressIndicator(
-        color: AppColors.primaryColor,
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +21,30 @@ class _LoadingListenerUIState extends State<LoadingListenerUI> {
       child: Stack(
         children: [
           widget.child,
-          widget.isLoading ? _loadingIndicator(context) : SizedBox.shrink(),
+          widget.isLoading ? _LoadingIndicator(context: context) : SizedBox.shrink(),
         ],
+      ),
+    );
+  }
+}
+
+class _LoadingIndicator extends StatelessWidget {
+  const _LoadingIndicator({
+    Key? key,
+    required this.context,
+  }) : super(key: key);
+
+  final BuildContext context;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.center,
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
+      color: Colors.black.withOpacity(0.3),
+      child: CircularProgressIndicator(
+        color: AppColors.primaryColor,
       ),
     );
   }

@@ -12,4 +12,15 @@ class NavigatorHelper {
     await Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => child));
   }
+
+  static Future<void> pushAndRemoveUntil(BuildContext context,
+      {required Widget page}) async {
+    await Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => page,
+      ),
+      (route) => false,
+    );
+  }
 }

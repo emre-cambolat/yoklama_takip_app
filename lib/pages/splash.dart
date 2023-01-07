@@ -27,7 +27,6 @@ class _SplashUIState extends State<SplashUI> {
 
   @override
   void initState() {
-    // TODO: implement initState
     // _checkLoginInfo();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
@@ -39,7 +38,6 @@ class _SplashUIState extends State<SplashUI> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
   }
 
@@ -60,22 +58,14 @@ class _SplashUIState extends State<SplashUI> {
             pass: _userInfo["pass"]!,
           );
 
-          if (loginStatus["status"] == "1" && StudentModel.cihazId == await PlatformDeviceId.getDeviceId) {
-            // Timer(Duration(seconds: 0), () async {
-            //   await ApiServices.getSituations();
-            //   Navigator.pushReplacement(
-            //     context,
-            //     MaterialPageRoute(
-            //       builder: (context) => HomePageUI(),
-            //     ),
-            //   );
-            // });
-            NavigatorHelper.pushReplacement(context, child: HomePageUI());
+          if (loginStatus["status"] == "1" &&
+              StudentModel.cihazId == await PlatformDeviceId.getDeviceId) {
+            NavigatorHelper.pushAndRemoveUntil(context, page: HomePageUI());
           } else {
-            NavigatorHelper.pushReplacement(context, child: LoginUI());
+            NavigatorHelper.pushAndRemoveUntil(context, page: LoginUI());
           }
         } else {
-          NavigatorHelper.pushReplacement(context, child: LoginUI());
+          NavigatorHelper.pushAndRemoveUntil(context, page: LoginUI());
         }
       },
     );
@@ -83,37 +73,14 @@ class _SplashUIState extends State<SplashUI> {
 
   Widget _progresIndicator() {
     if (_onErrror) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: AppSize.width / 1.8,
-            child: Text(
-              "İnternet bağlantınızı kontrol edip tekrar deneyiniz",
-              textAlign: TextAlign.center,
-              style: GoogleFonts.poppins(
-                color: Colors.black54,
-              ),
-            ),
-          ),
-          IconButton(
-            padding: EdgeInsets.symmetric(
-              vertical: 24,
-            ),
-            onPressed: () {
-              setState(() {
-                _onErrror = false;
-                _isLoading = true;
-                _checkLoginInfo();
-              });
-            },
-            icon: Icon(
-              Icons.replay_outlined,
-              color: Colors.black54,
-            ),
-          ),
-        ],
+      return _CheckInternetConnectionAlert(
+        onTap: () {
+          setState(() {
+            _onErrror = false;
+            _isLoading = true;
+            _checkLoginInfo();
+          });
+        },
       );
     }
     if (_isLoading) {
@@ -144,14 +111,7 @@ class _SplashUIState extends State<SplashUI> {
                 _widgetSize = AppSize.height / 3.5;
               });
             },
-            child: SizedBox(
-              width: AppSize.width,
-              // child: SvgPicture.string(
-              //   AppSVG.logo,
-              //   alignment: Alignment.center,
-              //   height: 75,
-              // ),
-            ),
+            child: _AppIcon(),
           ),
           Stack(
             alignment: Alignment.bottomCenter,
@@ -181,6 +141,63 @@ class _SplashUIState extends State<SplashUI> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _AppIcon extends StatelessWidget {
+  const _AppIcon({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: AppSize.width,
+      child: SvgPicture.asset(
+        AppSVGPaths.lessonIcon,
+        alignment: Alignment.center,
+        height: AppSize.height / 4,
+      ),
+    );
+  }
+}
+
+class _CheckInternetConnectionAlert extends StatelessWidget {
+  const _CheckInternetConnectionAlert({
+    Key? key,
+    required this.onTap,
+  }) : super(key: key);
+
+  final Function() onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(
+          width: AppSize.width / 1.8,
+          child: Text(
+            "İnternet bağlantınızı kontrol edip tekrar deneyiniz",
+            textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(
+              color: Colors.black54,
+            ),
+          ),
+        ),
+        IconButton(
+          padding: EdgeInsets.symmetric(
+            vertical: 24,
+          ),
+          onPressed: onTap,
+          icon: Icon(
+            Icons.replay_outlined,
+            color: Colors.black54,
+          ),
+        ),
+      ],
     );
   }
 }

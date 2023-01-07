@@ -28,7 +28,6 @@ class _LessonInspectionsUIState extends State<LessonInspectionsUI> {
   @override
   void initState() {
     ApiServices.getLessonById(lessonId: widget.lessonId).then((value) {
-      log("message");
       log(value.toString());
       _lessonInspections = LessonInspections.fromJson(value);
       setState(() {
@@ -59,37 +58,51 @@ class _LessonInspectionsUIState extends State<LessonInspectionsUI> {
           itemCount: _lessonInspections.data.length,
           itemBuilder: (context, index) {
             InspectionModel lesson = _lessonInspections.data[index];
-            return Card(
-              child: ListTile(
-                title: Text(DateFormat.fromDatetime(lesson.tarih).dateformat),
-                subtitle: Text(lesson.ogretmen),
-                trailing: Container(
-                  padding: EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: lesson.durum == 0
-                        ? Colors.red.shade50
-                        : Colors.green.shade50,
-                  ),
-                  child: lesson.durum == 0
-                      ? Text(
-                          "Katılmadı",
-                          style: GoogleFonts.poppins(
-                            color: Colors.red,
-                            fontSize: 12,
-                          ),
-                        )
-                      : Text(
-                          "Katıldı",
-                          style: GoogleFonts.poppins(
-                            color: Colors.green,
-                            fontSize: 12,
-                          ),
-                        ),
-                ),
-              ),
-            );
+            return _ListItem(lesson: lesson);
           },
+        ),
+      ),
+    );
+  }
+}
+
+class _ListItem extends StatelessWidget {
+  const _ListItem({
+    Key? key,
+    required this.lesson,
+  }) : super(key: key);
+
+  final InspectionModel lesson;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        title: Text(DateFormat.fromDatetime(lesson.tarih).dateformat),
+        subtitle: Text(lesson.ogretmen),
+        trailing: Container(
+          padding: EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: lesson.durum == 0
+                ? Colors.red.shade50
+                : Colors.green.shade50,
+          ),
+          child: lesson.durum == 0
+              ? Text(
+                  "Katılmadı",
+                  style: GoogleFonts.poppins(
+                    color: Colors.red,
+                    fontSize: 12,
+                  ),
+                )
+              : Text(
+                  "Katıldı",
+                  style: GoogleFonts.poppins(
+                    color: Colors.green,
+                    fontSize: 12,
+                  ),
+                ),
         ),
       ),
     );

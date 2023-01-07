@@ -1,9 +1,3 @@
-import 'dart:convert';
-
-// Lessons lessonsFromJson(String str) => Lessons.fromJson(json.decode(str));
-
-// String lessonsToJson(Lessons data) => json.encode(data.toJson());
-
 class Lessons {
   // Lessons({
   //   required this.status,

@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 import 'package:yoklama_takip/models/join_inspection.dart';
 import 'package:yoklama_takip/models/lessons.dart';
 import 'package:yoklama_takip/models/student.dart';
-import 'package:yoklama_takip/models/lesson_inspections.dart';
 
 import 'file_service.dart';
 

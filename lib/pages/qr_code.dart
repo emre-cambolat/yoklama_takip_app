@@ -1,6 +1,4 @@
 import 'dart:developer';
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:platform_device_id/platform_device_id.dart';
@@ -42,7 +40,6 @@ class _QRViewExampleState extends State<QRViewExample> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
@@ -144,14 +141,7 @@ class _QRViewExampleState extends State<QRViewExample> {
   }
 
   Widget _buildQrView(BuildContext context) {
-    // For this example we check how width or tall the device is and change the scanArea and overlay accordingly.
-    // var scanArea = (MediaQuery.of(context).size.width < 400 ||
-    //         MediaQuery.of(context).size.height < 400)
-    //     ? 150.0
-    //     : 300.0;
     var scanArea = MediaQuery.of(context).size.width * 0.8;
-    // To ensure the Scanner view is properly sizes after rotation
-    // we need to listen for Flutter SizeChanged notification and update controller
     return QRView(
       key: qrKey,
       onQRViewCreated: _onQRViewCreated,
@@ -222,10 +212,6 @@ class _QRViewExampleState extends State<QRViewExample> {
         log("Lütfen geçerli bir kare kod okutunuz");
         controller.resumeCamera();
       }
-      // if(result!.code != null){
-
-      //   Navigator.pop(context);
-      // }
     });
   }
 
@@ -243,29 +229,30 @@ class _QRViewExampleState extends State<QRViewExample> {
       required void Function() actionTap,
       bool isError = false}) async {
     await showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (context) {
-          return AlertDialog(
-            title: isError
-                ? Icon(
-                    Icons.error,
-                    color: Colors.red,
-                    size: 32,
-                  )
-                : Icon(
-                    Icons.check,
-                    color: Colors.green,
-                    size: 32,
-                  ),
-            content: Text(content),
-            actions: [
-              TextButton(
-                onPressed: actionTap,
-                child: Text("Devam"),
-              ),
-            ],
-          );
-        });
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return AlertDialog(
+          title: isError
+              ? Icon(
+                  Icons.error,
+                  color: Colors.red,
+                  size: 32,
+                )
+              : Icon(
+                  Icons.check,
+                  color: Colors.green,
+                  size: 32,
+                ),
+          content: Text(content),
+          actions: [
+            TextButton(
+              onPressed: actionTap,
+              child: Text("Devam"),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

@@ -10,7 +10,7 @@ extension AppInputDecoration on BuildContext {
         fontSize: 10.2,
         color: AppColors.black.withOpacity(0.3),
       ),
-      fillColor: AppColors.lightGrey,
+      fillColor: AppColors.grey.withOpacity(0.4),
       filled: true,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10.2),

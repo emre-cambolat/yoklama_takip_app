@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:platform_device_id/platform_device_id.dart';
 import 'package:yoklama_takip/models/lessons.dart';
 import 'package:yoklama_takip/pages/lesson_inspections.dart';
 import 'package:yoklama_takip/services/api_service.dart';
@@ -50,22 +47,39 @@ class _MyLessonsUIState extends State<MyLessonsUI> {
           ),
           itemCount: Lessons.data.length,
           itemBuilder: (context, index) {
-            return Card(
-              child: ListTile(
-                title: Text(Lessons.data[index].ders),
-                subtitle: Text(Lessons.data[index].ogretmen),
-                trailing: Icon(Icons.arrow_forward_ios),
-                onTap: () {
-                  NavigatorHelper.push(context,
-                      child: LessonInspectionsUI(
-                        lessonId: Lessons.data[index].dersId.toString(),
-                        lessonName: Lessons.data[index].ders,
-                      ));
-                },
-              ),
-            );
+            LessonModel _model = Lessons.data[index];
+            return _ListItem(model: _model);
           },
         ),
+      ),
+    );
+  }
+}
+
+class _ListItem extends StatelessWidget {
+  const _ListItem({
+    Key? key,
+    required LessonModel model,
+  }) : _model = model, super(key: key);
+
+  final LessonModel _model;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        title: Text(_model.ders),
+        subtitle: Text(_model.ogretmen),
+        trailing: Icon(Icons.arrow_forward_ios),
+        onTap: () {
+          NavigatorHelper.push(
+            context,
+            child: LessonInspectionsUI(
+              lessonId: _model.dersId.toString(),
+              lessonName: _model.ders,
+            ),
+          );
+        },
       ),
     );
   }

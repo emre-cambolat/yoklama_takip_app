@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:path_provider/path_provider.dart';
 
 class SecureFileService {
   static final _storage = FlutterSecureStorage(aOptions: _getAndroidOptions());
@@ -30,41 +29,8 @@ class SecureFileService {
     await _storage.deleteAll();
   }
 
-// // Read all values
-//   Map<String, String> allValues = await storage.readAll();
-
-// // Delete value
-//   await storage.delete(key: "key");
-
-// // Delete all
-//   await storage.deleteAll();
-
-// // Write value
-//   await storage.write(key: "key", value: value);
-
   static AndroidOptions _getAndroidOptions() => const AndroidOptions(
         encryptedSharedPreferences: true,
       );
 }
 
-// class FileService {
-//   Future<String> _getDirPath() async {
-//     final dir = await getApplicationDocumentsDirectory();
-//     return dir.path;
-//   }
-
-//   Future<dynamic> readFavories() async {
-//     final dirPath = await _getDirPath();
-//     final myFile = await File('$dirPath/favories.txt').create(recursive: true);
-//     final data = await myFile.readAsString(encoding: utf8);
-//     log("okunan favori:" + data);
-//     if (data.isNotEmpty) {}
-//     return data;
-//   }
-
-//   Future<void> writeFavories() async {
-//     final _dirPath = await _getDirPath();
-//     final _myFile = File('$_dirPath/favories.txt');
-//     await _myFile.writeAsString(jsonEncode(""));
-//   }
-// }

@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:location/location.dart' as location;
 import 'package:safe_device/safe_device.dart';
 import 'package:yoklama_takip/pages/qr_code.dart';
 import 'package:yoklama_takip/utils/app_size.dart';
-import 'package:yoklama_takip/utils/navigation_helper.dart';
+
+import '../utils/navigation_helper.dart';
 
 class CheckLocationUI extends StatefulWidget {
   const CheckLocationUI({super.key});
@@ -18,7 +18,6 @@ class CheckLocationUI extends StatefulWidget {
 }
 
 class _CheckLocationUIState extends State<CheckLocationUI> {
-  // LocationData? _locationData;
   Position? _currentPosition;
 
   List<String> _checkStatus = [
@@ -27,7 +26,6 @@ class _CheckLocationUIState extends State<CheckLocationUI> {
   ];
   int _stepCount = 0;
   bool _onError = false;
-  bool _serviceEnabled = false;
 
   _showDialog(String content) async {
     showDialog(
@@ -66,23 +64,19 @@ class _CheckLocationUIState extends State<CheckLocationUI> {
         await SafeDevice.isRealDevice &&
         !_currentPosition!.isMocked);
 
-    log("isMocked: " + await _currentPosition!.isMocked.toString());
-    log("isSafe: " + isSafe.toString());
-
     if (isSafe) {
       log("Cihaz güvenli");
       // await _getLocation();
-      await Future.delayed(Duration(milliseconds: 1500));
 
-      // _currentPosition = await _getCurrentPosition();
+      // await Future.delayed(Duration(milliseconds: 1500));
 
-      // NavigatorHelper.pushReplacement(
-      //   context,
-      //   child: QRViewExample(
-      //     lat: _currentPosition!.latitude,
-      //     long: _currentPosition!.longitude,
-      //   ),
-      // );
+      NavigatorHelper.pushReplacement(
+        context,
+        child: QRViewExample(
+          lat: _currentPosition!.latitude,
+          long: _currentPosition!.longitude,
+        ),
+      );
     } else {
       log("Cihaz güvenli değil");
       setState(() {
@@ -92,9 +86,6 @@ class _CheckLocationUIState extends State<CheckLocationUI> {
         "Cihazınız güvenli kabul edilmediği için yoklamaya katılamazsınız. Aşağıdaki maddelerden en az bir tanesinin olması cihazınızın güvenli olmadığını kabul eder.\n\n- Cihazda Jailbreak/Root işlemi olması\n- Sahte konum uygulaması kullanılması\n- Sanal bir cihaz kullanılması",
       );
     }
-
-    // bool isSafe;
-    //  SafeDevice.isSafeDevice.then((value) => isSafe = value);
   }
 
   _check() async {
@@ -102,9 +93,7 @@ class _CheckLocationUIState extends State<CheckLocationUI> {
     if (isLocationServiceEnabled) {
       _checkUserPermission();
     } else {
-      // Konum servisi kapalı, hata mesajı yazdır
       log('Konum servisi kapalı');
-      // await Geolocator.openLocationSettings();
       await location.Location.instance.requestService();
       _check();
     }
@@ -148,13 +137,13 @@ class _CheckLocationUIState extends State<CheckLocationUI> {
     } else if (permission == LocationPermission.whileInUse ||
         permission == LocationPermission.always) {
       // _checkDevice();
-      await _getCurrentPosition().whenComplete(() async {});
+      await _getCurrentPosition();
+      await Future.delayed(Duration(milliseconds: 1500));
       setState(() {
         _stepCount = 1;
       });
+      await Future.delayed(Duration(milliseconds: 1500));
       await _checkDevice();
-
-      // Future.delayed(Duration(milliseconds: 1500));
     }
   }
 
@@ -173,9 +162,9 @@ class _CheckLocationUIState extends State<CheckLocationUI> {
   }
 
   Future<void> _getCurrentPosition() async {
-    setState(() {
-      _stepCount = 0;
-    });
+    // setState(() {
+    //   _stepCount = 0;
+    // });
     try {
       _currentPosition = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.best,
@@ -209,13 +198,13 @@ class _CheckLocationUIState extends State<CheckLocationUI> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Kontroller yapılıyor"),
-        actions: [
-          IconButton(
-              onPressed: () {
-                _check();
-              },
-              icon: Icon(Icons.replay_outlined)),
-        ],
+        // actions: [
+        //   IconButton(
+        //       onPressed: () {
+        //         _check();
+        //       },
+        //       icon: Icon(Icons.replay_outlined)),
+        // ],
       ),
       body: _bodyWidget(),
     );
@@ -255,7 +244,7 @@ class _CheckLocationUIState extends State<CheckLocationUI> {
           ),
         ),
       );
-    } else if (_currentPosition == null) {
+    } else {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -275,45 +264,8 @@ class _CheckLocationUIState extends State<CheckLocationUI> {
         ],
       );
     }
-    return Center(
-      child: CircularProgressIndicator(),
-    );
-    // return Column(
-    //   mainAxisAlignment: MainAxisAlignment.center,
-    //   children: [
-    //     Center(
-    //       child: SelectableText(
-    //           "${_currentPosition!.latitude},${_currentPosition!.longitude}"),
-    //     ),
-    //     ElevatedButton(
-    //       onPressed: () {
-    //         Map<String, double> _position = {
-    //           'lat': 37.863179,
-    //           'long': 32.4772278,
-    //         };
-    //         double _distance = Geolocator.distanceBetween(
-    //           _currentPosition!.latitude,
-    //           _currentPosition!.longitude,
-    //           _position["lat"]!,
-    //           _position["long"]!,
-    //         );
-    //         log(_distance.toString() + " meters");
-    //       },
-    //       child: Text("Konumu kontrol et"),
-    //     ),
-    //     ElevatedButton(
-    //       onPressed: () {
-    //         NavigatorHelper.push(
-    //           context,
-    //           child: QRViewExample(
-    //             lat: _currentPosition!.latitude,
-    //             long: _currentPosition!.longitude,
-    //           ),
-    //         );
-    //       },
-    //       child: Text("Geçerli konum ile yoklamaya katıl"),
-    //     ),
-    //   ],
+    // return Center(
+    //   child: CircularProgressIndicator(),
     // );
   }
 }
