@@ -62,24 +62,27 @@ class _CheckLocationUIState extends State<CheckLocationUI> {
     SafeDevice.canMockLocation
         .then((value) => log("canMockLocation: " + value.toString()));
 
-    bool isSafe = (!await SafeDevice.isJailBroken ||
-        await SafeDevice.isRealDevice ||
+    bool isSafe = (!await SafeDevice.isJailBroken &&
+        await SafeDevice.isRealDevice &&
         !_currentPosition!.isMocked);
+
+    log("isMocked: " + await _currentPosition!.isMocked.toString());
+    log("isSafe: " + isSafe.toString());
 
     if (isSafe) {
       log("Cihaz güvenli");
       // await _getLocation();
       await Future.delayed(Duration(milliseconds: 1500));
 
-      _currentPosition = await _getCurrentPosition();
+      // _currentPosition = await _getCurrentPosition();
 
-      NavigatorHelper.pushReplacement(
-        context,
-        child: QRViewExample(
-          lat: _currentPosition!.latitude,
-          long: _currentPosition!.longitude,
-        ),
-      );
+      // NavigatorHelper.pushReplacement(
+      //   context,
+      //   child: QRViewExample(
+      //     lat: _currentPosition!.latitude,
+      //     long: _currentPosition!.longitude,
+      //   ),
+      // );
     } else {
       log("Cihaz güvenli değil");
       setState(() {
@@ -145,12 +148,13 @@ class _CheckLocationUIState extends State<CheckLocationUI> {
     } else if (permission == LocationPermission.whileInUse ||
         permission == LocationPermission.always) {
       // _checkDevice();
-      _currentPosition = await _getCurrentPosition();
+      await _getCurrentPosition().whenComplete(() async {});
       setState(() {
         _stepCount = 1;
       });
-      // Future.delayed(Duration(milliseconds: 1500));
       await _checkDevice();
+
+      // Future.delayed(Duration(milliseconds: 1500));
     }
   }
 
@@ -168,7 +172,7 @@ class _CheckLocationUIState extends State<CheckLocationUI> {
     return isLocationServiceEnabled;
   }
 
-  Future<Position?> _getCurrentPosition() async {
+  Future<void> _getCurrentPosition() async {
     setState(() {
       _stepCount = 0;
     });
@@ -186,7 +190,6 @@ class _CheckLocationUIState extends State<CheckLocationUI> {
       });
     }
     setState(() {});
-    return _currentPosition;
   }
 
   @override
@@ -206,6 +209,13 @@ class _CheckLocationUIState extends State<CheckLocationUI> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Kontroller yapılıyor"),
+        actions: [
+          IconButton(
+              onPressed: () {
+                _check();
+              },
+              icon: Icon(Icons.replay_outlined)),
+        ],
       ),
       body: _bodyWidget(),
     );
