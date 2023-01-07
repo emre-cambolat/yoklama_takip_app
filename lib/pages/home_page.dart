@@ -1,16 +1,20 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:location/location.dart';
 import 'package:permission_handler/permission_handler.dart'
     as permissionHandler;
 import 'package:safe_device/safe_device.dart';
+import 'package:yoklama_takip/models/student.dart';
+import 'package:yoklama_takip/pages/about_app.dart';
+import 'package:yoklama_takip/pages/check_location.dart';
+import 'package:yoklama_takip/pages/login.dart';
+import 'package:yoklama_takip/pages/my_lessons.dart';
 import 'package:yoklama_takip/pages/qr_code.dart';
+import 'package:yoklama_takip/services/file_service.dart';
 import 'package:yoklama_takip/utils/app_colors.dart';
 import 'package:yoklama_takip/utils/app_size.dart';
 import 'package:yoklama_takip/utils/app_svgs.dart';
+import 'package:yoklama_takip/utils/navigation_helper.dart';
 import 'package:yoklama_takip/widgets/app_willpopscope.dart';
 
 class HomePageUI extends StatefulWidget {
@@ -23,19 +27,22 @@ class HomePageUI extends StatefulWidget {
 class _HomePageUIState extends State<HomePageUI> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  Widget _itemBox({Widget? child}) {
-    return Container(
-      width: AppSize.width / 2.5,
-      height: AppSize.width / 2.5,
-      padding: EdgeInsets.all(AppSize.width / 24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(),
-        ],
+  Widget _itemBox({Widget? child, void Function()? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: AppSize.width / 2.5,
+        height: AppSize.width / 2.5,
+        padding: EdgeInsets.all(AppSize.width / 24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(),
+          ],
+        ),
+        child: child,
       ),
-      child: child,
     );
   }
 
@@ -65,6 +72,8 @@ class _HomePageUIState extends State<HomePageUI> {
   }
 
   Widget _drawerMenu() {
+
+
     return Drawer(
       child: SafeArea(
         child: Padding(
@@ -92,7 +101,7 @@ class _HomePageUIState extends State<HomePageUI> {
                         borderRadius: BorderRadius.circular(6.5),
                       ),
                       child: Text(
-                        "UserModel.userModel.basHarf",
+                        StudentModel.adSoyadBasHarf,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.poppins(
                             color: Colors.white,
@@ -105,14 +114,14 @@ class _HomePageUIState extends State<HomePageUI> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "UserModel.userModel.adSoyad",
+                          StudentModel.adSoyad,
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         Text(
-                          "UserModel.userModel.yetkiAdi",
+                          StudentModel.ogrenciNo,
                           style: GoogleFonts.poppins(
                               color: Colors.grey, fontSize: 12),
                         ),
@@ -132,6 +141,9 @@ class _HomePageUIState extends State<HomePageUI> {
                             //     builder: (context) => LoginUI(),
                             //   ),
                             // );
+                            await SecureFileService.exitUser();
+                            NavigatorHelper.pushReplacement(context,
+                                child: LoginUI());
                           },
                           child: Container(
                             padding: EdgeInsets.symmetric(
@@ -174,6 +186,7 @@ class _HomePageUIState extends State<HomePageUI> {
                     //   ),
                     // );
                     // _scaffoldKey.currentState!.closeEndDrawer();
+                    NavigatorHelper.push(context, child: CheckLocationUI());
                   },
                   child: Padding(
                     padding: EdgeInsets.symmetric(
@@ -183,7 +196,7 @@ class _HomePageUIState extends State<HomePageUI> {
                     child: Row(
                       children: [
                         Text(
-                          "Hatırlatmalar 1",
+                          "Yoklamaya Katıl",
                           style: TextStyle(
                             fontSize: 15,
                           ),
@@ -200,13 +213,7 @@ class _HomePageUIState extends State<HomePageUI> {
                 ),
                 child: InkWell(
                   onTap: () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => RemindersTwoUI(),
-                    //   ),
-                    // );
-                    // _scaffoldKey.currentState!.closeEndDrawer();
+                    NavigatorHelper.push(context, child: MyLessonsUI());
                   },
                   child: Padding(
                     padding: EdgeInsets.symmetric(
@@ -216,7 +223,39 @@ class _HomePageUIState extends State<HomePageUI> {
                     child: Row(
                       children: [
                         Text(
-                          "Hatırlatmalar 2",
+                          "Derslerim",
+                          style: TextStyle(
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: 24,
+                ),
+                child: InkWell(
+                  onTap: () {
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => RemindersTwoUI(),
+                    //   ),
+                    // );
+                    NavigatorHelper.push(context, child: AboutAppUI());
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          "Uygulama Hakkında",
                           style: TextStyle(
                             fontSize: 15,
                           ),
@@ -304,7 +343,7 @@ class _HomePageUIState extends State<HomePageUI> {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    "Hoşgeldin,\nEmre Cambolat",
+                    "Hoşgeldin,\n${StudentModel.adSoyad}",
                     style: TextStyle(
                       fontSize: AppSize.width / 12,
                       color: Colors.white,
@@ -322,21 +361,21 @@ class _HomePageUIState extends State<HomePageUI> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      InkWell(
+                      _itemBox(
                         onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => QRViewExample()));
+                          NavigatorHelper.push(context,
+                              child: CheckLocationUI());
+
                         },
-                        child: _itemBox(
-                          child: _itemChild(
-                            svgPath: AppSVG.qrCodeIcon,
-                            label: "Yoklamaya Katıl",
-                          ),
+                        child: _itemChild(
+                          svgPath: AppSVG.qrCodeIcon,
+                          label: "Yoklamaya Katıl",
                         ),
                       ),
                       _itemBox(
+                        onTap: () {
+                          NavigatorHelper.push(context, child: MyLessonsUI());
+                        },
                         child: _itemChild(
                           svgPath: AppSVG.lessonIcon,
                           label: "Derslerim",

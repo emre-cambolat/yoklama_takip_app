@@ -2,8 +2,12 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:yoklama_takip/models/inspection.dart';
-import 'package:yoklama_takip/models/ogrenci.dart';
+import 'package:yoklama_takip/models/join_inspection.dart';
+import 'package:yoklama_takip/models/lessons.dart';
+import 'package:yoklama_takip/models/student.dart';
+import 'package:yoklama_takip/models/lesson_inspections.dart';
+
+import 'file_service.dart';
 
 class ApiServices {
   static String _token = "";
@@ -14,7 +18,7 @@ class ApiServices {
     required String user,
     required String pass,
   }) async {
-    String _responseBody = await _postRequest(
+    String _responseBody = await _sendRequest(
       url: ApiAddress.LOGIN,
       body: {'kullaniciAdi': user.trim(), 'sifre': pass.trim()},
     );
@@ -24,7 +28,7 @@ class ApiServices {
       var _decodeResponse = jsonDecode(_responseBody);
       if (_decodeResponse["status"] == 1) {
         _token = _decodeResponse["token"];
-        Ogrenci.fromJson(_decodeResponse["ogrenci"]);
+        StudentModel.fromJson(_decodeResponse["ogrenci"]);
       }
       log(_decodeResponse.toString());
       return {
@@ -38,7 +42,7 @@ class ApiServices {
   static Future<Map<String, String>> studentUpdate({
     required String deviceId,
   }) async {
-    String _responseBody = await _postRequest(
+    String _responseBody = await _sendRequest(
       url: ApiAddress.OGRENCI_DUZENLE,
       headers: {'token': token},
       body: {'cihazid': deviceId},
@@ -48,7 +52,7 @@ class ApiServices {
     } else if (_responseBody != "0") {
       var _decodeResponse = jsonDecode(_responseBody);
       if (_decodeResponse["status"] == 1) {
-        Ogrenci.cihazid = deviceId;
+        StudentModel.cihazId = deviceId;
       }
       log(_decodeResponse.toString());
       return {
@@ -63,7 +67,7 @@ class ApiServices {
     required String deviceId,
     required String inspectionCode,
   }) async {
-    String _responseBody = await _postRequest(
+    String _responseBody = await _sendRequest(
       url: ApiAddress.YOKLAMA_BILGISI,
       headers: {'token': token},
       body: {'yoklamakodu': inspectionCode, 'cihazid': deviceId},
@@ -73,7 +77,7 @@ class ApiServices {
     } else if (_responseBody != "0") {
       var _decodeResponse = jsonDecode(_responseBody);
       if (_decodeResponse["status"] == 1) {
-        Inspection.fromJson(_decodeResponse["data"]);
+        JoinInspectionModel.fromJson(_decodeResponse["data"]);
         // Cihazdan konumu al. API'dan gelen konum ile yay çizip hesapla.
         // Eğer konum dışındaysa return 0 gönder. Değilse joinTheInspection metoduna istek gönder
         await joinTheInspection(
@@ -88,12 +92,59 @@ class ApiServices {
     return {'status': "0", 'text': "İstek gönderimi başarısız"};
   }
 
+  static Future<Map<String, String>> getStudentLessons() async {
+    String _responseBody = await _sendRequest(
+      isGetRequest: true,
+      url: ApiAddress.OGRENCI_YOKLAMALAR,
+      headers: {'token': token},
+    );
+    if (_responseBody == "-1") {
+      return {'status': "-1", 'text': "İnternet bağlantınızı kontrol ediniz."};
+    } else if (_responseBody != "0") {
+      var _decodeResponse = jsonDecode(_responseBody);
+      if (_decodeResponse["status"] == 1) {
+        Lessons.fromJson(_decodeResponse);
+      }
+      log(_decodeResponse.toString());
+      return {
+        'status': _decodeResponse["status"].toString(),
+        // 'text': _decodeResponse["text"]
+      };
+    }
+    return {'status': "0", 'text': "İstek gönderimi başarısız"};
+  }
+
+  static Future<Map<String, dynamic>> getLessonById(
+      {required String lessonId}) async {
+    String _responseBody = await _sendRequest(
+      url: ApiAddress.OGRENCI_DERS_YOKLAMALARI,
+      headers: {'token': token},
+      body: {'dersid': lessonId},
+    );
+    if (_responseBody == "-1") {
+      return {'status': "-1", 'text': "İnternet bağlantınızı kontrol ediniz."};
+    } else if (_responseBody != "0") {
+      var _decodeResponse = jsonDecode(_responseBody);
+
+      if (_decodeResponse["status"] == 1) {
+        log(_decodeResponse.toString());
+
+        return _decodeResponse;
+      }
+      return {
+        'status': _decodeResponse["status"].toString(),
+        // 'text': _decodeResponse["text"]
+      };
+    }
+    return {'status': "0", 'text': "İstek gönderimi başarısız"};
+  }
+
   static Future<Map<String, String>> joinTheInspection({
     required String deviceId,
     required String inspectionCode,
   }) async {
-    String _responseBody = await _postRequest(
-      url: ApiAddress.YOKLAMA_BILGISI,
+    String _responseBody = await _sendRequest(
+      url: ApiAddress.YOKLAMAYA_KATIL,
       headers: {'token': token},
       body: {'yoklamakodu': inspectionCode, 'cihazid': deviceId},
     );
@@ -116,11 +167,12 @@ class ApiServices {
     return {'status': "0", 'text': "İstek gönderimi başarısız"};
   }
 
-  static Future<String> _postRequest({
+  static Future<String> _sendRequest({
     required Uri url,
     Map<String, String>? headers,
     Object? body,
     Encoding? encoding,
+    bool isGetRequest = false,
   }) async {
     // log(body.toString());
     bool isConnect = await isInternetConnection();
@@ -128,15 +180,27 @@ class ApiServices {
     if (!isConnect) {
       return "-1";
     }
-    http.Response response = await http.post(
-      url,
-      body: body,
-      headers: headers,
-      encoding: encoding,
-    );
+    http.Response response = isGetRequest
+        ? await http.get(
+            url,
+            headers: headers,
+          )
+        : await http.post(
+            url,
+            body: body,
+            headers: headers,
+            encoding: encoding,
+          );
     // log(response.body);
     if (response.statusCode == 200) {
       var _body = await response.body;
+      if (jsonDecode(_body)["status"] == "4") {
+        Map<String, String> _userInfo = await SecureFileService.readUserInfo();
+        await login(
+          user: _userInfo["user"]!,
+          pass: _userInfo["pass"]!,
+        );
+      }
       return _body;
     } else {
       log("İstek gönderme başarısız. Hata Kodu: (${response.statusCode})");
@@ -161,12 +225,13 @@ class ApiServices {
 }
 
 class ApiAddress {
-  static String _endPoint = "https://yoklamatakip.emrecambolat.com/api/";
-  static String _login = "login";
-  static String _ogrenciDuzenle = "ogrenci/duzenle";
-  static String _yoklamayaKatil = "yoklama/katil";
-  static String _yoklamaBilgisi = "yoklama/bilgi";
-  static String _ogrenciYoklamalar = "ogrenci/yoklamalar";
+  static const String _endPoint = "https://yoklamatakip.emrecambolat.com/api/";
+  static const String _login = "login";
+  static const String _ogrenciDuzenle = "ogrenci/duzenle";
+  static const String _yoklamayaKatil = "yoklama/katil";
+  static const String _yoklamaBilgisi = "yoklama/bilgi";
+  static const String _ogrenciYoklamalar = "ogrenci/yoklamalar";
+  static const String _ogrenciDersYoklamalari = "ogrenci/dersYoklamalar";
 
   static Uri get LOGIN => Uri.parse(Uri.encodeFull(_endPoint + _login));
   static Uri get OGRENCI_DUZENLE =>
@@ -177,4 +242,6 @@ class ApiAddress {
       Uri.parse(Uri.encodeFull(_endPoint + _yoklamaBilgisi));
   static Uri get OGRENCI_YOKLAMALAR =>
       Uri.parse(Uri.encodeFull(_endPoint + _ogrenciYoklamalar));
+  static Uri get OGRENCI_DERS_YOKLAMALARI =>
+      Uri.parse(Uri.encodeFull(_endPoint + _ogrenciDersYoklamalari));
 }

@@ -1,18 +1,20 @@
-class Ogrenci {
+class StudentModel {
   static late int id;
-  static late String adsoyad;
-  static late String eposta;
-  static late String ogrencino;
-  static late  String cihazid;
+  static late String adSoyad;
+  static late String adSoyadBasHarf;
+  static late String ePosta;
+  static late String ogrenciNo;
+  static late  String cihazId;
 
   // Ogrenci({this.id, this.adsoyad, this.eposta, this.ogrencino, this.cihazid});
 
-  Ogrenci.fromJson(Map<String, dynamic> json) {
+  StudentModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    adsoyad = json['adsoyad'];
-    eposta = json['eposta'];
-    ogrencino = json['ogrencino'];
-    cihazid = json['cihazid'];
+    adSoyad = json['adsoyad'];
+    ePosta = json['eposta'];
+    ogrenciNo = json['ogrencino'];
+    cihazId = json['cihazid'];
+    adSoyadBasHarf = adSoyad.split(' ').first[0] + adSoyad.split(' ').last[0];
   }
 
   // Map<String, dynamic> toJson() {

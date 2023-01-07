@@ -21,9 +21,9 @@ class SecureFileService {
     return value;
   }
 
-  static Future<void> writeUserInfo(Map<String, String> userInfo) async {
-    await _storage.write(key: "user", value: userInfo["user"]);
-    await _storage.write(key: "pass", value: userInfo["pass"]);
+  static Future<void> writeUserInfo({required String user, required String pass}) async {
+    await _storage.write(key: "user", value: user);
+    await _storage.write(key: "pass", value: pass);
   }
 
   static Future<void> exitUser() async {

@@ -2,7 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:platform_device_id/platform_device_id.dart';
+import 'package:yoklama_takip/models/student.dart';
 import 'package:yoklama_takip/pages/home_page.dart';
+import 'package:yoklama_takip/utils/navigation_helper.dart';
 import '../../services/api_service.dart';
 import '../../services/file_service.dart';
 import '../../utils/app_size.dart';
@@ -57,7 +60,7 @@ class _SplashUIState extends State<SplashUI> {
             pass: _userInfo["pass"]!,
           );
 
-          if (loginStatus["status"] == "1") {
+          if (loginStatus["status"] == "1" && StudentModel.cihazId == await PlatformDeviceId.getDeviceId) {
             // Timer(Duration(seconds: 0), () async {
             //   await ApiServices.getSituations();
             //   Navigator.pushReplacement(
@@ -67,14 +70,12 @@ class _SplashUIState extends State<SplashUI> {
             //     ),
             //   );
             // });
+            NavigatorHelper.pushReplacement(context, child: HomePageUI());
+          } else {
+            NavigatorHelper.pushReplacement(context, child: LoginUI());
           }
         } else {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => LoginUI(),
-            ),
-          );
+          NavigatorHelper.pushReplacement(context, child: LoginUI());
         }
       },
     );

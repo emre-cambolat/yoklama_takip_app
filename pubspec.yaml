@@ -46,6 +46,8 @@ dependencies:
   permission_handler: ^10.2.0
   location: ^4.4.0
   platform_device_id: ^1.0.1
+  # great_circle_distance_calculator: ^1.0.4
+  geolocator: ^9.0.2
 
 dev_dependencies:
   flutter_test:

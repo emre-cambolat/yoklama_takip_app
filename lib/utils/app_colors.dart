@@ -6,20 +6,18 @@ class AppColors {
         int.parse("0xFF${color.split("#").last.toLowerCase().trim()}"));
   }
 
-  static Color _primaryColor = hexToColor("2C9AFF");
-  static Color _backgroundColor1 = hexToColor("2C294B");
-  static Color _backgroundColor2 = hexToColor("F5F8FA");
-  
-  
-  static Color _company1Color = hexToColor("19c6c2");
-  static Color _company2Color = hexToColor("f64e60");
-  static Color _userAvatarColor1 = hexToColor("3699ff");
-  static Color _userAvatarColor2 = hexToColor("e1f0ff");
+  static const Color _primaryColor = Color(0xff2C9AFF);
+  static const Color _backgroundColor1 = Color(0xff2C294B);
+  static const Color _backgroundColor2 = Color(0xffF5F8FA);
 
-  static Color _black = hexToColor("181C32");
-  static Color _lightGrey = Color.fromRGBO(243, 246, 249, 1);
-  static Color _grey = hexToColor("A1A5B7");
-  
+  static const Color _company1Color = Color(0xff19c6c2);
+  static const Color _company2Color = Color(0xfff64e60);
+  static const Color _userAvatarColor1 = Color(0xff3699ff);
+  static const Color _userAvatarColor2 = Color(0xffe1f0ff);
+
+  static const Color _black = Color(0xff181C32);
+  static const Color _lightGrey = Color.fromRGBO(243, 246, 249, 1);
+  static const Color _grey = Color(0xffA1A5B7);
 
   static Color get primaryColor => _primaryColor;
   static Color get backgroundColor1 => _backgroundColor1;

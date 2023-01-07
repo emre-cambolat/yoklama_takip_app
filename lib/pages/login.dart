@@ -6,9 +6,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:platform_device_id/platform_device_id.dart';
 import 'package:safe_device/safe_device.dart';
-import 'package:yoklama_takip/models/ogrenci.dart';
+import 'package:yoklama_takip/models/student.dart';
 import 'package:yoklama_takip/pages/home_page.dart';
 import 'package:yoklama_takip/services/api_service.dart';
+import 'package:yoklama_takip/services/file_service.dart';
+import 'package:yoklama_takip/utils/navigation_helper.dart';
 import 'package:yoklama_takip/widgets/extensions.dart';
 import '../utils/app_colors.dart';
 import '../utils/app_size.dart';
@@ -148,7 +150,7 @@ class _LoginUIState extends State<LoginUI> {
                           if (loginStatus["status"] == "1") {
                             String? deviceId =
                                 await PlatformDeviceId.getDeviceId;
-                            if (Ogrenci.cihazid.isEmpty) {
+                            if (StudentModel.cihazId.isEmpty) {
                               setState(() {
                                 _isLoading = false;
                               });
@@ -159,7 +161,7 @@ class _LoginUIState extends State<LoginUI> {
                                     title: Text("Cihaz kayıt edilsin mi?"),
                                     content: Text(
                                       "Bu cihaz \'" +
-                                          Ogrenci.adsoyad +
+                                          StudentModel.adSoyad +
                                           "\' isimli öğrenci ile eşleştirilirse sadece bu cihazdan yoklamaya katılabileceksiniz. Cihaz eşleştirmesini yeniden yapmak için öğrenci işlerine başvurmanız gerekmektedir.",
                                     ),
                                     actions: [
@@ -171,6 +173,7 @@ class _LoginUIState extends State<LoginUI> {
                                           // Navigator.pop(context);
                                           if (!_isLoading) {
                                             _isLoading = true;
+                                            await _writeUser();
                                             await ApiServices.studentUpdate(
                                                 deviceId: deviceId!);
                                             ScaffoldMessenger.of(context)
@@ -181,11 +184,10 @@ class _LoginUIState extends State<LoginUI> {
                                                         .toString()),
                                               ),
                                             );
-                                            Navigator.pushReplacement(
+                                            Navigator.pop(context);
+                                            NavigatorHelper.pushReplacement(
                                                 context,
-                                                MaterialPageRoute(
-                                                    builder: ((context) =>
-                                                        HomePageUI())));
+                                                child: HomePageUI());
                                           }
                                         },
                                         child: Text("Devam"),
@@ -200,16 +202,15 @@ class _LoginUIState extends State<LoginUI> {
                                   );
                                 },
                               );
-                            } else if (Ogrenci.cihazid == deviceId!) {
+                            } else if (StudentModel.cihazId == deviceId!){
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(loginStatus["text"].toString()),
                                 ),
                               );
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: ((context) => HomePageUI())));
+                              await _writeUser();
+                              NavigatorHelper.pushReplacement(context,
+                                  child: HomePageUI());
                             } else {
                               setState(() {
                                 _isLoading = false;
@@ -265,6 +266,14 @@ class _LoginUIState extends State<LoginUI> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _writeUser() async {
+    await SecureFileService
+        .writeUserInfo(
+      user: _user.text.trim(),
+      pass: _pass.text.trim(),
     );
   }
 }
